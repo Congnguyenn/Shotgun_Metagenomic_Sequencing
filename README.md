@@ -1,12 +1,49 @@
-#SHOTGUN METAGENOMIC SEQUENCING
+# SHOTGUN METAGENOMIC SEQUENCING
 
 ## I. PRE-PROCESSING STAGE.
 ### 1.1 Adapter and quality trimming: fastp/Trimmomatic
+**Reasons why you used fastp instead of trimmomatic**
+- Automatically detect adapters
+- Others author selected fastp mainly because the high performance (faster than trimmomatic or Cutadapt) despite performing far more operations than similar tools.
+- Correct mismatched base pairs in overlapped regions
 
+**Results**
+Read1 before filtering:
+total reads: 3889245
+total bases: 587275995
+Q20 bases: 504940278(85.9801%)
+Q30 bases: 496296310(84.5082%)
 
-aaa
+Read2 before filtering:
+total reads: 3889245
+total bases: 587275995
+Q20 bases: 505073547(86.0028%)
+Q30 bases: 493559464(84.0422%)
 
+Read1 after filtering:
+total reads: 2837975
+total bases: 412677751
+Q20 bases: 396763805(96.1437%)
+Q30 bases: 392740705(95.1689%)
 
+Read2 after filtering:
+total reads: 2837975
+total bases: 412677751
+Q20 bases: 395725107(95.892%)
+Q30 bases: 389852127(94.4689%)
+
+Filtering result:
+reads passed filter: 5675950
+reads failed due to low quality: 1620856
+reads failed due to too many N: 3814
+reads failed due to too short: 477870
+reads with adapter trimmed: 2077164
+bases trimmed due to adapters: 121134626
+
+### 1.2 Identifying and removing host: Bowtie2/ phiX/ EukDetect/whokaryote
+**Reasons why you used fastp instead of trimmomatic**
+- EukDetect detects eukaryotes in shotgun metagenomic data using eukaryotic gene markers
+- Uses a database of 521,824 universal marker genes from 241 conserved gene families
 
 ## Reference:
 1. https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-019-6289-6
