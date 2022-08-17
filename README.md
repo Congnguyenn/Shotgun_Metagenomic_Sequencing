@@ -1,49 +1,62 @@
 # SHOTGUN METAGENOMIC SEQUENCING
 
 ## I. PRE-PROCESSING STAGE.
-### 1.1 Adapter and quality trimming: fastp/Trimmomatic
+### 1.1 Adapter and quality trimming: fastp
 **Reasons why you used fastp instead of trimmomatic**
 - Automatically detect adapters
 - Others author selected fastp mainly because the high performance (faster than trimmomatic or Cutadapt) despite performing far more operations than similar tools.
 - Correct mismatched base pairs in overlapped regions
 
-**Results**
-Read1 before filtering:
-total reads: 3889245
-total bases: 587275995
-Q20 bases: 504940278(85.9801%)
-Q30 bases: 496296310(84.5082%)
+**Result:**
+	Before filtering	% passed	% failed	low quality	too many N	too short	low complexity
+2111RD03_S33_L001	4657700	85.83	14.17	9.71	0.22	4.16	0.07
+2111RD02_S26_L001	3163330	82.97	17.03	9.64	0.21	6.15	1.02
+2111RD01_S25_L001	2421216	88.74	11.26	8.48	0.17	2.43	0.19
+2111RD01_S19_L001	7778490	77.62	22.38	12.31	0.06	9.94	0.07
+709_S20_L001	2110400	53.26	46.74	18.37	0.04	28.04	0.28
+merged	20131136	79.14	20.86	11.46	0.13	9.00	0.26
 
-Read2 before filtering:
-total reads: 3889245
-total bases: 587275995
-Q20 bases: 505073547(86.0028%)
-Q30 bases: 493559464(84.0422%)
+### 1.2 Verify the quality of sequencing: fastQC
 
-Read1 after filtering:
-total reads: 2837975
-total bases: 412677751
-Q20 bases: 396763805(96.1437%)
-Q30 bases: 392740705(95.1689%)
+### 1.3 Identifying and removing host: Bowtie2
+- Remove both anchovy and human DNA: Coilia nasus (Japanese grenadier anchovy) and GRCh38.p14
+--> Why human DNA still remains in the bracken result ?
+--> How to completely remove human DNA ?
 
-Read2 after filtering:
-total reads: 2837975
-total bases: 412677751
-Q20 bases: 395725107(95.892%)
-Q30 bases: 389852127(94.4689%)
+## II. TAXONOMY ASSIGNMENT and VISUALIZATION
+### 2.1 Taxonomy assignment: Kraken2 | Estimate abundance: bracken | Visualize data: krona   
+- Kraken2 database: Minikraken: preliminary testing has shown the accuracy of a reduced Kraken 2 database to be quite similar to the full-sized Kraken 2 database, while Kraken 1's MiniKraken databases often resulted in a substantial loss of per-read sensitivity.
+- braken: at 3 levels: Phylum, Genus, Species
+**Question**
+- Human DNA still remain in the bracken result --> can I remove it and re-calculate the percentage
 
-Filtering result:
-reads passed filter: 5675950
-reads failed due to low quality: 1620856
-reads failed due to too many N: 3814
-reads failed due to too short: 477870
-reads with adapter trimmed: 2077164
-bases trimmed due to adapters: 121134626
+## Why the unclassified taxa is too high?
+- Didier Andrivon: 'unclassified' could relate to bacterial taxa assigned to the general clades listed on the legend (Proteobacteria, Clostridiales, etc...) based on sequence similarities/blasts, but not to any given genus within these clades.
+- Alex Ignatov: a large portion of sequences (taxa) had frequency of occurrence below of certain threshold (1% for an example) and they have not been included into analysis.
+- My opinion: Not found in the database and repeated regions
 
-### 1.2 Identifying and removing host: Bowtie2/ phiX/ EukDetect/whokaryote
-**Reasons why you used fastp instead of trimmomatic**
-- EukDetect detects eukaryotes in shotgun metagenomic data using eukaryotic gene markers
-- Uses a database of 521,824 universal marker genes from 241 conserved gene families
+ **--> What should we do ?:**
+ --> to solve the repeat regions: I performed low-complexity filtering with fastp (threshold=30%)
+ low-complexity: The complexity is defined as the percentage of base that is different from its next base (base[i] != base[i+1]).
+ The threshold for low complexity filter (0~100). Default is 30, which means 30% complexity is required. (int [=30])
+ - Result: Remove low complexity can enhance the result (reduce human DNA) but it does not significant (32284 reads are removed)
+ --> to solve the frequency of occurrence: I suggest, increase the input sample and coverage (how much? --> unknown)
+ --> How about using MetaPhlAn3 (maker genes-based) instead of kraken2 (k-mer based): https://www.sciencedirect.com/science/article/pii/S2001037021004931
+
+## Finding the similar paper:
+### Shotgun sequence-based metataxonomic and predictive functional profiles of Pe poke, a naturally fermented soybean food of Myanmar
+- Data: available
+- Method: shotgun - ONT technology - assembly based
+
+### A shotgun metagenomics approach to detect and characterize unauthorized genetically modified microorganisms in microbial fermentation products
+- Data: available
+- Method: shotgun - ONT + illumina - assembly based
+
+### Shotgun Metagenomics of a Water Kefir Fermentation Ecosystem Reveals a Novel Oenococcus Species
+- Data: available
+- Method: shotgun - assembly based
+
+### New insights of bacterial communities in fermented vegetables from shotgun metagenomics and identification of antibiotic resistance genes and probiotic bacteria
 
 ## Reference:
 1. https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-019-6289-6
